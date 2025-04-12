@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "lib": [
+            "es2020",
+            "dom"
+        ],
+        "target": "es2015",
+        "module": "commonjs",
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "resolveJsonModule": true,
+        "noImplicitReturns": true,
+        "forceConsistentCasingInFileNames": true,
+        "noUncheckedIndexedAccess": true,
+        "declaration": true
+    },
+    "include": [
+        "**.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "test/*"
+    ]
+}

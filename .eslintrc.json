@@ -1,0 +1,99 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:jest/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "import",
+        "jest",
+        "jest-mock-config"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-multiple-empty-lines": [
+            "error",
+            {
+                "max": 1
+            }
+        ],
+        "import/order": [
+            "error",
+            {
+                "groups": [
+                    [
+                        "builtin",
+                        "external"
+                    ],
+                    [
+                        "parent",
+                        "sibling",
+                        "index"
+                    ]
+                ],
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ],
+        "import/no-cycle": "error",
+        "import/no-namespace": "error",
+        "import/newline-after-import": "error",
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "args": "all",
+                "argsIgnorePattern": "^_",
+                "caughtErrors": "all",
+                "caughtErrorsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "ignoreRestSiblings": true
+            }
+        ],
+        "@typescript-eslint/explicit-module-boundary-types": "error",
+        "@typescript-eslint/consistent-type-imports": "error",
+        "no-console": "error",
+        "jest/expect-expect": "error",
+        "no-shadow": "off", // replaced by ts-eslint rule below
+        "@typescript-eslint/no-shadow": "error",
+        "no-restricted-imports": ["error",
+         "assert","buffer","child_process","cluster","crypto","dgram","dns","domain","events","freelist","fs","http","https","module","net","os","path","punycode","querystring","readline","repl","smalloc","stream","string_decoder","sys","timers","tls","tracing","tty","url","util","vm","zlib"
+        ],
+        "no-trailing-spaces": "error",
+        "jest-mock-config/jest-mock-without-import": ["error", { "ignoreMockWithFactory": true } ],
+        "jest-mock-config/jest-mocked-without-mock": "error",
+        "jest-mock-config/jest-mock-multiple-with-same-path": "error"
+
+    }
+}
