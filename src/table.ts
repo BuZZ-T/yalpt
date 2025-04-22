@@ -63,7 +63,7 @@ export class Table extends Printer<Table> {
         return `${left}${column.map((cell, index) => padFn(cell, columnWidths[index])).join(middle)}${right}`;
     }
 
-    private drawTable(data: Array<Record<string, string | number>>, columns: Array<string>, widths: Array<number>): string {
+    private drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, widths: Array<number>): string {
         const topLine = this.createLine({
             column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
@@ -74,7 +74,7 @@ export class Table extends Printer<Table> {
         });
         const header = this.createLine(
             {
-                column: columns.map(cell => ` ${cell} `),
+                column: columns.map(cell => ` ${String(cell)} `),
                 columnWidths: widths,
                 left: tableCharacters.vertical,
                 middle: tableCharacters.vertical,
@@ -115,9 +115,9 @@ export class Table extends Printer<Table> {
         return table;
     }
 
-    private calculateColumnWidth(
-        data: Array<Record<string, string | number>>,
-        columns: Array<string>): Array<number> {
+    private calculateColumnWidth<T extends Record<string, unknown>>(
+        data: Array<T>,
+        columns: Array<keyof T>): Array<number> {
 
         return data.reduce<Array<number>>((acc, row) => {
             columns.forEach((column, columnIndex) => {
@@ -130,12 +130,12 @@ export class Table extends Printer<Table> {
             });
 
             return acc;
-        }, columns.map(column => column.length));
+        }, columns.map(column => String(column).length));
     }
 
-    public table(
-        data: Array<Record<string, string | number>>,
-        columns: Array<string>): void {
+    public table<T extends Record<string, unknown>>(
+        data: Array<T>,
+        columns: Array<keyof T>): void {
         const widths = this.calculateColumnWidth(data, columns);
 
         const table = this.drawTable(data, columns, widths);
