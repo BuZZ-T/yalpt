@@ -57,14 +57,14 @@ export class Table extends Printer<Table> {
         return this;
     }
 
-    private createLine({ column, columnWidths, left, middle, right, alignCenter }: CreateLineParams): string {
+    #createLine({ column, columnWidths, left, middle, right, alignCenter }: CreateLineParams): string {
         const padFn = alignCenter ? padCenter : padEnd;
 
         return `${left}${column.map((cell, index) => padFn(cell, columnWidths[index])).join(middle)}${right}`;
     }
 
-    private drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, columnTitles: Array<string | undefined | null>, widths: Array<number>): string {
-        const topLine = this.createLine({
+    #drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, columnTitles: Array<string | undefined | null>, widths: Array<number>): string {
+        const topLine = this.#createLine({
             column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
             left: tableCharacters.topLeft,
@@ -76,7 +76,7 @@ export class Table extends Printer<Table> {
         const tableTitles = columns.map((column, index) =>
             columnTitles[index] || String(column));
 
-        const header = this.createLine(
+        const header = this.#createLine(
             {
                 column: tableTitles,
                 columnWidths: widths,
@@ -86,7 +86,7 @@ export class Table extends Printer<Table> {
                 alignCenter: true
             }
         );
-        const separator = this.createLine({
+        const separator = this.#createLine({
             column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
             left: tableCharacters.left,
@@ -96,7 +96,7 @@ export class Table extends Printer<Table> {
         });
 
         const content = data.map(row =>
-            this.createLine({
+            this.#createLine({
                 column: columns.map(column => ` ${row[column]} `),
                 columnWidths: widths,
                 left: tableCharacters.vertical,
@@ -106,7 +106,7 @@ export class Table extends Printer<Table> {
             })
         ).join('\n');
 
-        const bottomLine = this.createLine({
+        const bottomLine = this.#createLine({
             column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
             left: tableCharacters.bottomLeft,
@@ -119,7 +119,7 @@ export class Table extends Printer<Table> {
         return table;
     }
 
-    private calculateColumnWidth<T extends Record<string, unknown>>(
+    #calculateColumnWidth<T extends Record<string, unknown>>(
         data: Array<T>,
         columns: Array<keyof T>,
         columnTitles: Array<string | undefined | null>): Array<number> {
@@ -142,9 +142,9 @@ export class Table extends Printer<Table> {
         data: Array<T>,
         columns: Array<keyof T>,
         columnTitles: Array<string | undefined | null> = []): void {
-        const widths = this.calculateColumnWidth(data, columns, columnTitles);
+        const widths = this.#calculateColumnWidth(data, columns, columnTitles);
 
-        const table = this.drawTable(data, columns, columnTitles, widths);
+        const table = this.#drawTable(data, columns, columnTitles, widths);
 
         this.clearLine()
             .write(table)
