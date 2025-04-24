@@ -1,6 +1,6 @@
 # Yet another logging-the-progress tool
 
-Yes, it's yet another logging tool. It first first created as a util of [rusted-chromium](https://github.com/BuZZ-T/rusted-chromium) and then extracted, to be used in other cli-tools, like [abandoned-packages](https://github.com/BuZZ-T/abandoned-packages).
+Yes, it's yet another logging tool. It was first created as a util of [rusted-chromium](https://www.npmjs.com/package/rusted-chromium) and then extracted, to be used in other cli-tools, like [abandoned-packages](https://github.com/BuZZ-T/abandoned-packages).
 
 Therefore, it only consists of logging functionality, which is used in these projects.
 
@@ -38,3 +38,23 @@ logger.setDebugMode(DebugMode.NONE)
 | `.error()` | | |
 
 ## progress
+
+## table
+
+### .table
+
+Draws a table.
+
+```
+.table<T extends Record<string, unknown>>(
+  data: Array<T>,
+  columns: Array<keyof T>,
+  columnTitles: Array<string | undefined | null> = []
+)
+```
+
+"`data`" is the complete array of data. May include fields which are not displayed in the table.
+
+"`columns`" are the keys of the fields which should be displayed.
+
+"`columnTitles`" is an optional array of strings to set as value of the header field of the column. | `table.table([{first: 'Michael', last: 'Smith', age: 25}, {first: 'John', last: 'Doe', age: '?'}, ['first', 'last'], ['Firstname', 'Lastname'])`

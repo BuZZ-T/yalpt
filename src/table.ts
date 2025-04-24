@@ -1,17 +1,62 @@
 import { Printer } from './printer';
 
-const tableCharacters = {
-    horizontal: '═',
-    vertical: '║',
-    topLeft: '╔',
-    topRight: '╗',
-    bottomLeft: '╚',
-    bottomRight: '╝',
-    left: '╠',
-    right: '╣',
-    middle: '╬',
-    top: '╦',
-    bottom: '╩',
+type TableCharacters = 'single' | 'double' | 'bold' | 'rounded';
+
+type TableElement = 'horizontal' | 'vertical' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | 'left' | 'right' | 'middle' | 'top' | 'bottom';
+
+const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> = {
+    single: {
+        horizontal: '─',
+        vertical: '│',
+        topLeft: '┌',
+        topRight: '┐',
+        bottomLeft: '└',
+        bottomRight: '┘',
+        left: '├',
+        right: '┤',
+        middle: '┼',
+        top: '┬',
+        bottom: '┴',
+    },
+    double: {
+        horizontal: '═',
+        vertical: '║',
+        topLeft: '╔',
+        topRight: '╗',
+        bottomLeft: '╚',
+        bottomRight: '╝',
+        left: '╠',
+        right: '╣',
+        middle: '╬',
+        top: '╦',
+        bottom: '╩',
+    },
+    bold: {
+        horizontal: '━',
+        vertical: '┃',
+        topLeft: '┏',
+        topRight: '┓',
+        bottomLeft: '┗',
+        bottomRight: '┛',
+        left: '┣',
+        right: '┫',
+        middle: '╋',
+        top: '┳',
+        bottom: '┻',
+    },
+    rounded: {
+        horizontal: '─',
+        vertical: '│',
+        topLeft: '╭',
+        topRight: '╮',
+        bottomLeft: '╰',
+        bottomRight: '╯',
+        left: '├',
+        right: '┤',
+        middle: '┼',
+        top: '┬',
+        bottom: '┴',
+    },
 };
 
 function padCenter(value: string, length = 0): string {
@@ -42,6 +87,8 @@ type CreateLineParams = {
 
 export class Table extends Printer<Table> {
 
+    #tableCharacters = allTableCharacters.double;
+
     public constructor(stdio: NodeJS.WriteStream) {
         super(stdio);
     }
@@ -57,6 +104,26 @@ export class Table extends Printer<Table> {
         return this;
     }
 
+    public setTableCharacters(characters: TableCharacters): void {
+        this.#tableCharacters = allTableCharacters[characters];
+    }
+
+    public setCustomTableCharacters(characters: Record<TableElement, string>): void {
+        this.#tableCharacters = {
+            horizontal: characters.horizontal,
+            vertical: characters.vertical,
+            topLeft: characters.topLeft,
+            topRight: characters.topRight,
+            bottomLeft: characters.bottomLeft,
+            bottomRight: characters.bottomRight,
+            left: characters.left,
+            right: characters.right,
+            middle: characters.middle,
+            top: characters.top,
+            bottom: characters.bottom
+        };
+    }
+
     #createLine({ column, columnWidths, left, middle, right, alignCenter }: CreateLineParams): string {
         const padFn = alignCenter ? padCenter : padEnd;
 
@@ -65,11 +132,11 @@ export class Table extends Printer<Table> {
 
     #drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, columnTitles: Array<string | undefined | null>, widths: Array<number>): string {
         const topLine = this.#createLine({
-            column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
+            column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
-            left: tableCharacters.topLeft,
-            middle: tableCharacters.top,
-            right: tableCharacters.topRight,
+            left: this.#tableCharacters.topLeft,
+            middle: this.#tableCharacters.top,
+            right: this.#tableCharacters.topRight,
             alignCenter: true
         });
 
@@ -80,18 +147,18 @@ export class Table extends Printer<Table> {
             {
                 column: tableTitles,
                 columnWidths: widths,
-                left: tableCharacters.vertical,
-                middle: tableCharacters.vertical,
-                right: tableCharacters.vertical,
+                left: this.#tableCharacters.vertical,
+                middle: this.#tableCharacters.vertical,
+                right: this.#tableCharacters.vertical,
                 alignCenter: true
             }
         );
         const separator = this.#createLine({
-            column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
+            column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
-            left: tableCharacters.left,
-            middle: tableCharacters.middle,
-            right: tableCharacters.right,
+            left: this.#tableCharacters.left,
+            middle: this.#tableCharacters.middle,
+            right: this.#tableCharacters.right,
             alignCenter: true
         });
 
@@ -99,19 +166,19 @@ export class Table extends Printer<Table> {
             this.#createLine({
                 column: columns.map(column => ` ${row[column]} `),
                 columnWidths: widths,
-                left: tableCharacters.vertical,
-                middle: tableCharacters.vertical,
-                right: tableCharacters.vertical,
+                left: this.#tableCharacters.vertical,
+                middle: this.#tableCharacters.vertical,
+                right: this.#tableCharacters.vertical,
                 alignCenter: false
             })
         ).join('\n');
 
         const bottomLine = this.#createLine({
-            column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
+            column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
-            left: tableCharacters.bottomLeft,
-            middle: tableCharacters.bottom,
-            right: tableCharacters.bottomRight,
+            left: this.#tableCharacters.bottomLeft,
+            middle: this.#tableCharacters.bottom,
+            right: this.#tableCharacters.bottomRight,
             alignCenter: true
         });
 
