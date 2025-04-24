@@ -63,7 +63,7 @@ export class Table extends Printer<Table> {
         return `${left}${column.map((cell, index) => padFn(cell, columnWidths[index])).join(middle)}${right}`;
     }
 
-    private drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, widths: Array<number>): string {
+    private drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, columnTitles: Array<string | undefined | null>, widths: Array<number>): string {
         const topLine = this.createLine({
             column: columns.map((_, index) => tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
@@ -72,9 +72,13 @@ export class Table extends Printer<Table> {
             right: tableCharacters.topRight,
             alignCenter: true
         });
+
+        const tableTitles = columns.map((column, index) =>
+            columnTitles[index] || String(column));
+
         const header = this.createLine(
             {
-                column: columns.map(cell => ` ${String(cell)} `),
+                column: tableTitles,
                 columnWidths: widths,
                 left: tableCharacters.vertical,
                 middle: tableCharacters.vertical,
@@ -117,7 +121,8 @@ export class Table extends Printer<Table> {
 
     private calculateColumnWidth<T extends Record<string, unknown>>(
         data: Array<T>,
-        columns: Array<keyof T>): Array<number> {
+        columns: Array<keyof T>,
+        columnTitles: Array<string | undefined | null>): Array<number> {
 
         return data.reduce<Array<number>>((acc, row) => {
             columns.forEach((column, columnIndex) => {
@@ -130,15 +135,16 @@ export class Table extends Printer<Table> {
             });
 
             return acc;
-        }, columns.map(column => String(column).length));
+        }, columns.map((column, index) => String(columnTitles[index] || column).length));
     }
 
     public table<T extends Record<string, unknown>>(
         data: Array<T>,
-        columns: Array<keyof T>): void {
-        const widths = this.calculateColumnWidth(data, columns);
+        columns: Array<keyof T>,
+        columnTitles: Array<string | undefined | null> = []): void {
+        const widths = this.calculateColumnWidth(data, columns, columnTitles);
 
-        const table = this.drawTable(data, columns, widths);
+        const table = this.drawTable(data, columns, columnTitles, widths);
 
         this.clearLine()
             .write(table)
