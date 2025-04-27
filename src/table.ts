@@ -1,8 +1,24 @@
 import { Printer } from './printer';
+import { isArrayOfArrays } from './utils/typeguards';
 
 type TableCharacters = 'single' | 'double' | 'bold' | 'rounded';
 
-type TableElement = 'horizontal' | 'vertical' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | 'left' | 'right' | 'middle' | 'top' | 'bottom';
+type TableElement =
+    | 'horizontal'
+    | 'vertical'
+    | 'topLeft'
+    | 'topRight'
+    | 'bottomLeft'
+    | 'bottomRight'
+    | 'left'
+    | 'right'
+    | 'middle'
+    | 'top'
+    | 'bottom'
+    | 'separatorLeft'
+    | 'separatorRight'
+    | 'separatorMiddle'
+    | 'separatorHorizontal';
 
 const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> = {
     single: {
@@ -17,6 +33,10 @@ const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> 
         middle: '┼',
         top: '┬',
         bottom: '┴',
+        separatorLeft: '├',
+        separatorRight: '┤',
+        separatorMiddle: '┼',
+        separatorHorizontal: '─',
     },
     double: {
         horizontal: '═',
@@ -30,6 +50,10 @@ const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> 
         middle: '╬',
         top: '╦',
         bottom: '╩',
+        separatorLeft: '╟',
+        separatorRight: '╢',
+        separatorMiddle: '╫',
+        separatorHorizontal: '─',
     },
     bold: {
         horizontal: '━',
@@ -43,6 +67,10 @@ const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> 
         middle: '╋',
         top: '┳',
         bottom: '┻',
+        separatorLeft: '┠',
+        separatorRight: '┨',
+        separatorMiddle: '╂',
+        separatorHorizontal: '─',
     },
     rounded: {
         horizontal: '─',
@@ -56,6 +84,10 @@ const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> 
         middle: '┼',
         top: '┬',
         bottom: '┴',
+        separatorLeft: '├',
+        separatorRight: '┤',
+        separatorMiddle: '┼',
+        separatorHorizontal: '─',
     },
 };
 
@@ -128,7 +160,11 @@ export class Table extends Printer<Table> {
             right: characters.right,
             middle: characters.middle,
             top: characters.top,
-            bottom: characters.bottom
+            bottom: characters.bottom,
+            separatorLeft: characters.separatorLeft,
+            separatorRight: characters.separatorRight,
+            separatorMiddle: characters.separatorMiddle,
+            separatorHorizontal: characters.separatorHorizontal,
         };
     }
 
@@ -138,7 +174,23 @@ export class Table extends Printer<Table> {
         return `${left}${column.map((cell, index) => padFn(cell, columnWidths[index])).join(middle)}${right}`;
     }
 
-    #drawTable<T extends Record<string, unknown>>(data: Array<T>, columns: Array<keyof T>, columnTitles: Array<string | undefined | null>, widths: Array<number>): string {
+    #createSeparator<T extends Record<string, unknown>>(columns: Array<keyof T>, widths: Array<number>, isHeadline: boolean): string {
+        return this.#createLine({
+            column: columns.map((_, index) => (isHeadline ? this.#tableCharacters.horizontal : this.#tableCharacters.separatorHorizontal).repeat((widths[index] || 0) + 2)),
+            columnWidths: widths,
+            left: isHeadline ? this.#tableCharacters.left : this.#tableCharacters.separatorLeft,
+            middle: isHeadline ? this.#tableCharacters.middle : this.#tableCharacters.separatorMiddle,
+            right: isHeadline ? this.#tableCharacters.right : this.#tableCharacters.separatorRight,
+            alignCenter: true
+        });
+    }
+
+    #drawTable<T extends Record<string, unknown>>(
+        data: Array<Array<T>>,
+        columns: Array<keyof T>,
+        columnTitles: Array<string | undefined | null>,
+        widths: Array<number>): string {
+
         const topLine = this.#createLine({
             column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
             columnWidths: widths,
@@ -161,25 +213,22 @@ export class Table extends Printer<Table> {
                 alignCenter: true
             }
         );
-        const separator = this.#createLine({
-            column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
-            columnWidths: widths,
-            left: this.#tableCharacters.left,
-            middle: this.#tableCharacters.middle,
-            right: this.#tableCharacters.right,
-            alignCenter: true
-        });
+        const separator = this.#createSeparator(columns, widths, true);
+        const groupSeparator = this.#createSeparator(columns, widths, false);
 
-        const content = data.map(row =>
-            this.#createLine({
-                column: columns.map(column => ` ${row[column]} `),
-                columnWidths: widths,
-                left: this.#tableCharacters.vertical,
-                middle: this.#tableCharacters.vertical,
-                right: this.#tableCharacters.vertical,
-                alignCenter: false
-            })
-        ).join('\n');
+        const content = data.map(group => {
+
+            return group.map(row =>
+                this.#createLine({
+                    column: columns.map(column => ` ${row[column]} `),
+                    columnWidths: widths,
+                    left: this.#tableCharacters.vertical,
+                    middle: this.#tableCharacters.vertical,
+                    right: this.#tableCharacters.vertical,
+                    alignCenter: false
+                })
+            ).join('\n');
+        }).join(`\n${groupSeparator}\n`);
 
         const bottomLine = this.#createLine({
             column: columns.map((_, index) => this.#tableCharacters.horizontal.repeat((widths[index] || 0) + 2)),
@@ -213,13 +262,20 @@ export class Table extends Printer<Table> {
         }, columns.map((column, index) => String(columnTitles[index] || column).length));
     }
 
+    /**
+     * TODO
+     * If an array of arrays is passed, the content is grouped by the given inner arrays
+     */
     public table<T extends Record<string, unknown>>(
-        data: Array<T>,
+        data: Array<T> | Array<Array<T>>,
         columns: Array<keyof T>,
         columnTitles: Array<string | undefined | null> = []): void {
-        const widths = this.#calculateColumnWidth(data, columns, columnTitles);
 
-        const table = this.#drawTable(data, columns, columnTitles, widths);
+        const dataArr: Array<Array<T>> = isArrayOfArrays(data) ? data : [data];
+
+        const widths = this.#calculateColumnWidth(dataArr.flat(), columns, columnTitles);
+
+        const table = this.#drawTable(dataArr, columns, columnTitles, widths);
 
         this.clearLine()
             .write(table)
