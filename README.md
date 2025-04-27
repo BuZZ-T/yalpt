@@ -20,6 +20,13 @@ These methods are available in each of the following logging tools.
 ## logger
 
 A simple one-line logging statement, in severity "debug", "info", "warn" and "error".
+
+### usage
+**create**
+```
+const logger = new Logger(process.stdout);
+```
+
 "debug" can be de-/activated using:
 ```js
 // on
@@ -29,6 +36,21 @@ logger.setDebugMode(DebugMode.NONE)
 ```
 
 ## spinner
+
+**create**
+```ts
+const spinner = new Spinner(process.stdout);
+```
+
+**start spinning**
+```
+spinner.start(...)
+```
+
+**update Text (to publish process)**
+```
+spinner.update(text);
+```
 
 | Method | Description | Usage
 |-|-|-

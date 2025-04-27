@@ -15,6 +15,14 @@ export class Logger extends Printer<Logger> {
         super(stdio);
     }
 
+    /**
+     * Silents all loggers (logger.silent() only silents the current instance).
+     * Can't be undone
+     */
+    public static silentAll(): void {
+        Logger.silent = true;
+    }
+
     private debugMode = DebugMode.NONE;
 
     protected self(): Logger {

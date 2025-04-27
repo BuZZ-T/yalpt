@@ -20,6 +20,14 @@ export class Spinner extends Printer<Spinner> {
         this.spinnerStates = spinnerStates;
     }
 
+    /**
+     * Silents all spinners (spinner.silent() only silents the current instance).
+     * Can't be undone
+     */
+    public static silentAll(): void {
+        Spinner.silent = true;
+    }
+
     private increaseCount(): void {
         this.count = (this.count + 1) % (this.spinnerStates.length - 1);
     }

@@ -93,6 +93,14 @@ export class Table extends Printer<Table> {
         super(stdio);
     }
 
+    /**
+     * Silents all tables (table.silent() only silents the current instance).
+     * Can't be undone
+     */
+    public static silentAll(): void {
+        Table.silent = true;
+    }
+
     public self(): Table {
         return this;
     }

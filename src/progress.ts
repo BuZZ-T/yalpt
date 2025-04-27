@@ -18,6 +18,14 @@ export class ProgressBar extends Printer<ProgressBar> {
         super(stdio);
     }
 
+    /**
+     * Silents all progress bars (progress.silent() only silents the current instance).
+     * Can't be undone
+     */
+    public static silentAll(): void {
+        ProgressBar.silent = true;
+    }
+
     protected stop(): ProgressBar {
         this.config = undefined;
         return this;
