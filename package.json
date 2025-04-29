@@ -1,6 +1,6 @@
 {
   "name": "yalpt",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "description": "Yet another logging-progress tool",
   "main": "public_api.js",
   "scripts": {
