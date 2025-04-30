@@ -1,6 +1,6 @@
 {
   "name": "yalpt",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Yet another logging-progress tool",
   "main": "public_api.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "prerelease": "npm run build",
     "release": "npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },    
+  },
   "keywords": [
     "log",
     "logging"
