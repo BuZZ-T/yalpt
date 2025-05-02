@@ -11,8 +11,6 @@ const silentWriteStream: PrinterWriteStream = {
 };
 
 export abstract class Printer<T extends Printer<T>> {
-    protected static silent: boolean;
-
     protected successFn(msg: string): string {
         return this.showColors
             ? chalk.green(`✔ ${msg}`)
@@ -58,10 +56,6 @@ export abstract class Printer<T extends Printer<T>> {
      * Writes the given text to stdio. Does nothing, if no text is provided
      */
     protected write(text?: string): T {
-        if (Printer.silent) {
-            this.silent();
-        }
-
         if (text) {
             this.stdio.write(text);
         }

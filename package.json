@@ -5,6 +5,7 @@
   "main": "public_api.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:silent": "tsc -p tsconfig.json --noEmit",
     "clean": "find . \\( -iname '*.js' -o -iname '*.js.map' -o -iname '*.d.ts' \\) -and -not -path './node_modules/*' -delete",
     "lint": "eslint **/*.ts *.ts",
     "prebuild": "npm run clean",
@@ -16,6 +17,10 @@
     "log",
     "logging"
   ],
+  "repository": {
+    "url": "git+https://github.com/BuZZ-T/yalpt.git",
+    "type": "git"
+  },
   "author": "Bastian Gebhardt <buzz-t@buzz-t.eu>",
   "license": "MIT",
   "devDependencies": {

@@ -15,14 +15,6 @@ export class Logger extends Printer<Logger> {
         super(stdio);
     }
 
-    /**
-     * Silents all loggers (logger.silent() only silents the current instance).
-     * Can't be undone
-     */
-    public static silentAll(): void {
-        Logger.silent = true;
-    }
-
     private debugMode = DebugMode.NONE;
 
     protected self(): Logger {
@@ -70,3 +62,4 @@ export class Logger extends Printer<Logger> {
 }
 
 export const logger = new Logger(process.stdout);
+export const loggerErr = new Logger(process.stderr);
