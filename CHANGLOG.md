@@ -1,5 +1,13 @@
 #Changelog
 
+## 0.1.1-1
+
+* handle control characters (like color codes of chalk)
+
+## 0.1.1-0
+
+* move chalk to dependencies
+
 ## 0.1.0-0
 
 * remove static .silentAll()
