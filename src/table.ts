@@ -1,3 +1,5 @@
+import { stripVTControlCharacters } from 'node:util';
+
 import { Printer } from './printer';
 import { isArrayOfArrays } from './utils/typeguards';
 
@@ -91,8 +93,8 @@ const allTableCharacters: Record<TableCharacters, Record<TableElement, string>> 
     },
 };
 
-function padCenter(value: string, length = 0): string {
-    const valueLength = value.length;
+function padCenter(value: string, stripControlChars: boolean, length = 0): string {
+    const valueLength = (stripControlChars ? stripVTControlCharacters(value): value).length;
     const padding = length - valueLength + 2;
     const leftPadding = Math.floor(padding / 2);
     const rightPadding = padding - leftPadding;
@@ -101,8 +103,8 @@ function padCenter(value: string, length = 0): string {
     return `${leftSpaces}${value}${rightSpaces}`;
 }
 
-function padEnd(value: string, length = 0): string {
-    const valueLength = value.length;
+function padEnd(value: string, stripControlChars: boolean, length = 0): string {
+    const valueLength = (stripControlChars ? stripVTControlCharacters(value): value).length;
     const padding = length - valueLength + 2;
 
     return `${value}${' '.repeat(padding)}`;
@@ -115,6 +117,7 @@ type CreateLineParams = {
     middle: string;
     right: string;
     alignCenter: boolean;
+    stripControlChars: boolean;
 }
 
 export class Table extends Printer<Table> {
@@ -160,10 +163,10 @@ export class Table extends Printer<Table> {
         };
     }
 
-    #createLine({ column, columnWidths, left, middle, right, alignCenter }: CreateLineParams): string {
+    #createLine({ column, columnWidths, left, middle, right, alignCenter, stripControlChars }: CreateLineParams): string {
         const padFn = alignCenter ? padCenter : padEnd;
 
-        return `${left}${column.map((cell, index) => padFn(cell, columnWidths[index])).join(middle)}${right}`;
+        return `${left}${column.map((cell, index) => padFn(cell, stripControlChars, columnWidths[index])).join(middle)}${right}`;
     }
 
     #createSeparator<T extends Record<string, unknown>>(columns: Array<keyof T>, widths: Array<number>, isHeadline: boolean): string {
@@ -173,7 +176,8 @@ export class Table extends Printer<Table> {
             left: isHeadline ? this.#tableCharacters.left : this.#tableCharacters.separatorLeft,
             middle: isHeadline ? this.#tableCharacters.middle : this.#tableCharacters.separatorMiddle,
             right: isHeadline ? this.#tableCharacters.right : this.#tableCharacters.separatorRight,
-            alignCenter: true
+            alignCenter: true,
+            stripControlChars: false,
         });
     }
 
@@ -189,7 +193,8 @@ export class Table extends Printer<Table> {
             left: this.#tableCharacters.topLeft,
             middle: this.#tableCharacters.top,
             right: this.#tableCharacters.topRight,
-            alignCenter: true
+            alignCenter: true,
+            stripControlChars: false,
         });
 
         const tableTitles = columns.map((column, index) =>
@@ -202,7 +207,8 @@ export class Table extends Printer<Table> {
                 left: this.#tableCharacters.vertical,
                 middle: this.#tableCharacters.vertical,
                 right: this.#tableCharacters.vertical,
-                alignCenter: true
+                alignCenter: true,
+                stripControlChars: true,
             }
         );
         const separator = this.#createSeparator(columns, widths, true);
@@ -217,7 +223,8 @@ export class Table extends Printer<Table> {
                     left: this.#tableCharacters.vertical,
                     middle: this.#tableCharacters.vertical,
                     right: this.#tableCharacters.vertical,
-                    alignCenter: false
+                    stripControlChars: true,
+                    alignCenter: false,
                 })
             ).join('\n');
         }).join(`\n${groupSeparator}\n`);
@@ -228,7 +235,8 @@ export class Table extends Printer<Table> {
             left: this.#tableCharacters.bottomLeft,
             middle: this.#tableCharacters.bottom,
             right: this.#tableCharacters.bottomRight,
-            alignCenter: true
+            alignCenter: true,
+            stripControlChars: false,
         });
 
         const table = topLine + '\n' + header + '\n' + separator + '\n' + content + '\n' + bottomLine;
@@ -242,8 +250,7 @@ export class Table extends Printer<Table> {
 
         return data.reduce<Array<number>>((acc, row) => {
             columns.forEach((column, columnIndex) => {
-                const value = row[column];
-                const valueLength = String(value).length;
+                const valueLength = stripVTControlCharacters(String(row[column])).length;
 
                 if (!acc[columnIndex] || valueLength > acc[columnIndex]) {
                     acc[columnIndex] = valueLength;

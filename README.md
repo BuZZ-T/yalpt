@@ -63,6 +63,8 @@ spinner.update(text);
 
 ## table
 
+Prints the given data as table. Supports control characters for style and color, like [chalk](https://www.npmjs.com/package/chalk) or [yoctocolors](https://github.com/sindresorhus/yoctocolors).
+
 ### .table
 
 Draws a table.
